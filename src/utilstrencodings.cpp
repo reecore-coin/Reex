@@ -479,7 +479,7 @@ bool ParseInt32(const std::string& str, int32_t *out)
 {
     if (!ParsePrechecks(str))
         return false;
-    char *endp = NULL;
+    char *endp = nullptr;
     errno = 0; // strtol will not set errno if valid
     long int n = strtol(str.c_str(), &endp, 10);
     if(out) *out = (int32_t)n;
@@ -495,7 +495,7 @@ bool ParseInt64(const std::string& str, int64_t *out)
 {
     if (!ParsePrechecks(str))
         return false;
-    char *endp = NULL;
+    char *endp = nullptr;
     errno = 0; // strtoll will not set errno if valid
     long long int n = strtoll(str.c_str(), &endp, 10);
     if(out) *out = (int64_t)n;
@@ -567,7 +567,7 @@ int64_t atoi64(const char* psz)
 #ifdef _MSC_VER
     return _atoi64(psz);
 #else
-    return strtoll(psz, NULL, 10);
+    return strtoll(psz, nullptr, 10);
 #endif
 }
 
@@ -576,7 +576,7 @@ int64_t atoi64(const std::string& str)
 #ifdef _MSC_VER
     return _atoi64(str.c_str());
 #else
-    return strtoll(str.c_str(), NULL, 10);
+    return strtoll(str.c_str(), nullptr, 10);
 #endif
 }
 

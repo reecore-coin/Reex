@@ -29,7 +29,6 @@
 #endif
 
 #include <boost/filesystem/path.hpp>
-#include <boost/foreach.hpp>
 #include <boost/signals2/signal.hpp>
 
 class CAddrMan;
@@ -73,8 +72,8 @@ CNode* FindNode(const CNetAddr& ip);
 CNode* FindNode(const CSubNet& subNet);
 CNode* FindNode(const std::string& addrName);
 CNode* FindNode(const CService& ip);
-CNode* ConnectNode(CAddress addrConnect, const char* pszDest = NULL);
-bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant* grantOutbound = NULL, const char* strDest = NULL, bool fOneShot = false);
+CNode* ConnectNode(CAddress addrConnect, const char* pszDest = nullptr);
+bool OpenNetworkConnection(const CAddress& addrConnect, CSemaphoreGrant* grantOutbound = nullptr, const char* strDest = nullptr, bool fOneShot = false);
 void MapPort(bool fUseUPnP);
 unsigned short GetListenPort();
 bool BindListenPort(const CService& bindAddr, std::string& strError, bool fWhitelisted = false);
@@ -117,11 +116,11 @@ bool AddLocal(const CNetAddr& addr, int nScore = LOCAL_NONE);
 bool RemoveLocal(const CService& addr);
 bool SeenLocal(const CService& addr);
 bool IsLocal(const CService& addr);
-bool GetLocal(CService& addr, const CNetAddr* paddrPeer = NULL);
+bool GetLocal(CService& addr, const CNetAddr* paddrPeer = nullptr);
 bool IsReachable(enum Network net);
 bool IsReachable(const CNetAddr& addr);
 void SetReachable(enum Network net, bool fFlag = true);
-CAddress GetLocalAddress(const CNetAddr* paddrPeer = NULL);
+CAddress GetLocalAddress(const CNetAddr* paddrPeer = nullptr);
 
 
 extern bool fDiscover;
@@ -402,7 +401,7 @@ public:
     unsigned int GetTotalRecvSize()
     {
         unsigned int total = 0;
-        BOOST_FOREACH (const CNetMessage& msg, vRecvMsg)
+        for (const CNetMessage& msg : vRecvMsg)
             total += msg.vRecv.size() + 24;
         return total;
     }
@@ -414,7 +413,7 @@ public:
     void SetRecvVersion(int nVersionIn)
     {
         nRecvVersion = nVersionIn;
-        BOOST_FOREACH (CNetMessage& msg, vRecvMsg)
+        for (CNetMessage& msg : vRecvMsg)
             msg.SetVersion(nVersionIn);
     }
 
@@ -650,7 +649,7 @@ public:
 
     bool HasFulfilledRequest(std::string strRequest)
     {
-        BOOST_FOREACH (std::string& type, vecRequestsFulfilled) {
+        for (std::string& type : vecRequestsFulfilled) {
             if (type == strRequest) return true;
         }
         return false;

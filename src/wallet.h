@@ -133,8 +133,8 @@ public:
 class CWallet : public CCryptoKeyStore, public CValidationInterface
 {
 private:
-    bool SelectCoins(const CAmount& nTargetValue, std::set<std::pair<const CWalletTx*, unsigned int> >& setCoinsRet, CAmount& nValueRet, const CCoinControl* coinControl = NULL, AvailableCoinsType coin_type = ALL_COINS, bool useIX = true) const;
-    //it was public bool SelectCoins(int64_t nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl *coinControl = NULL, AvailableCoinsType coin_type=ALL_COINS, bool useIX = true) const;
+    bool SelectCoins(const CAmount& nTargetValue, std::set<std::pair<const CWalletTx*, unsigned int> >& setCoinsRet, CAmount& nValueRet, const CCoinControl* coinControl = nullptr, AvailableCoinsType coin_type = ALL_COINS, bool useIX = true) const;
+    //it was public bool SelectCoins(int64_t nTargetValue, std::set<std::pair<const CWalletTx*,unsigned int> >& setCoinsRet, int64_t& nValueRet, const CCoinControl *coinControl = nullptr, AvailableCoinsType coin_type=ALL_COINS, bool useIX = true) const;
 
     CWalletDB* pwalletdbEncryption;
 
@@ -227,7 +227,7 @@ public:
         nWalletMaxVersion = FEATURE_BASE;
         fFileBacked = false;
         nMasterKeyMaxID = 0;
-        pwalletdbEncryption = NULL;
+        pwalletdbEncryption = nullptr;
         nOrderPosNext = 0;
         nNextResend = 0;
         nLastResend = 0;
@@ -287,7 +287,7 @@ public:
         return nWalletMaxVersion >= wf;
     }
 
-    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed = true, const CCoinControl* coinControl = NULL, bool fIncludeZeroValue = false, AvailableCoinsType nCoinType = ALL_COINS, bool fUseIX = false) const;
+    void AvailableCoins(std::vector<COutput>& vCoins, bool fOnlyConfirmed = true, const CCoinControl* coinControl = nullptr, bool fIncludeZeroValue = false, AvailableCoinsType nCoinType = ALL_COINS, bool fUseIX = false) const;
     std::map<CBitcoinAddress, std::vector<COutput> > AvailableCoinsByAddress(bool fConfirmed = true, CAmount maxCoinValue = 0);
     bool SelectCoinsMinConf(const CAmount& nTargetValue, int nConfMine, int nConfTheirs, std::vector<COutput> vCoins, std::set<std::pair<const CWalletTx*, unsigned int> >& setCoinsRet, CAmount& nValueRet) const;
 
@@ -362,7 +362,7 @@ public:
      * Increment the next transaction order id
      * @return next transaction order id
      */
-    int64_t IncOrderPosNext(CWalletDB* pwalletdb = NULL);
+    int64_t IncOrderPosNext(CWalletDB* pwalletdb = nullptr);
 
     typedef std::pair<CWalletTx*, CAccountingEntry*> TxPair;
     typedef std::multimap<int64_t, TxPair> TxItems;
@@ -397,11 +397,11 @@ public:
         CReserveKey& reservekey,
         CAmount& nFeeRet,
         std::string& strFailReason,
-        const CCoinControl* coinControl = NULL,
+        const CCoinControl* coinControl = nullptr,
         AvailableCoinsType coin_type = ALL_COINS,
         bool useIX = false,
         CAmount nFeePay = 0);
-    bool CreateTransaction(CScript scriptPubKey, const CAmount& nValue, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl = NULL, AvailableCoinsType coin_type = ALL_COINS, bool useIX = false, CAmount nFeePay = 0);
+    bool CreateTransaction(CScript scriptPubKey, const CAmount& nValue, CWalletTx& wtxNew, CReserveKey& reservekey, CAmount& nFeeRet, std::string& strFailReason, const CCoinControl* coinControl = nullptr, AvailableCoinsType coin_type = ALL_COINS, bool useIX = false, CAmount nFeePay = 0);
     bool CommitTransaction(CWalletTx& wtxNew, CReserveKey& reservekey, std::string strCommand = "tx");
     bool ConvertList(std::vector<CTxIn> vCoins, std::vector<int64_t>& vecAmounts);
     bool CreateCoinStake(const CKeyStore& keystore, unsigned int nBits, int64_t nSearchInterval, CMutableTransaction& txNew, unsigned int& nTxNewTime);
@@ -449,7 +449,7 @@ public:
     }
     bool IsMine(const CTransaction& tx) const
     {
-        BOOST_FOREACH (const CTxOut& txout, tx.vout)
+        for (const CTxOut& txout : tx.vout)
             if (IsMine(txout))
                 return true;
         return false;
@@ -462,7 +462,7 @@ public:
     CAmount GetDebit(const CTransaction& tx, const isminefilter& filter) const
     {
         CAmount nDebit = 0;
-        BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+        for (const CTxIn& txin : tx.vin) {
             nDebit += GetDebit(txin, filter);
             if (!MoneyRange(nDebit))
                 throw std::runtime_error("CWallet::GetDebit() : value out of range");
@@ -472,7 +472,7 @@ public:
     CAmount GetCredit(const CTransaction& tx, const isminefilter& filter) const
     {
         CAmount nCredit = 0;
-        BOOST_FOREACH (const CTxOut& txout, tx.vout) {
+        for (const CTxOut& txout : tx.vout) {
             nCredit += GetCredit(txout, filter);
             if (!MoneyRange(nCredit))
                 throw std::runtime_error("CWallet::GetCredit() : value out of range");
@@ -482,7 +482,7 @@ public:
     CAmount GetChange(const CTransaction& tx) const
     {
         CAmount nChange = 0;
-        BOOST_FOREACH (const CTxOut& txout, tx.vout) {
+        for (const CTxOut& txout : tx.vout) {
             nChange += GetChange(txout);
             if (!MoneyRange(nChange))
                 throw std::runtime_error("CWallet::GetChange() : value out of range");
@@ -519,7 +519,7 @@ public:
     bool SetDefaultKey(const CPubKey& vchPubKey);
 
     //! signify that a particular wallet feature is now used. this may change nWalletVersion and nWalletMaxVersion if those are lower
-    bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = NULL, bool fExplicit = false);
+    bool SetMinVersion(enum WalletFeature, CWalletDB* pwalletdbIn = nullptr, bool fExplicit = false);
 
     //! change which version we're allowed to upgrade to (note that this does not immediately imply upgrading to that format)
     bool SetMaxVersion(int nVersion);
@@ -722,7 +722,7 @@ public:
 
     CWalletTx()
     {
-        Init(NULL);
+        Init(nullptr);
     }
 
     CWalletTx(const CWallet* pwalletIn)
@@ -777,7 +777,7 @@ public:
     inline void SerializationOp(Stream& s, Operation ser_action, int nType, int nVersion)
     {
         if (ser_action.ForRead())
-            Init(NULL);
+            Init(nullptr);
         char fSpent = false;
 
         if (!ser_action.ForRead()) {
@@ -1102,10 +1102,10 @@ public:
             return false;
 
         // Trusted if all inputs are from us and are in the mempool:
-        BOOST_FOREACH (const CTxIn& txin, vin) {
+        for (const CTxIn& txin : vin) {
             // Transactions not sent by us: not trusted
             const CWalletTx* parent = pwallet->GetWalletTx(txin.prevout.hash);
-            if (parent == NULL)
+            if (parent == nullptr)
                 return false;
             const CTxOut& parentOut = parent->vout[txin.prevout.n];
             if (pwallet->IsMine(parentOut) != ISMINE_SPENDABLE)

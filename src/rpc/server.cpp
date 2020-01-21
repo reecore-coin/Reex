@@ -23,7 +23,6 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/shared_ptr.hpp>
@@ -59,11 +58,11 @@ static struct CRPCSignals
 } g_rpcSignals;
 
 //! These are created by StartRPCThreads, destroyed in StopRPCThreads
-static asio::io_service* rpc_io_service = NULL;
+static asio::io_service* rpc_io_service = nullptr;
 static map<string, boost::shared_ptr<deadline_timer> > deadlineTimers;
-static ssl::context* rpc_ssl_context = NULL;
-static boost::thread_group* rpc_worker_group = NULL;
-static boost::asio::io_service::work* rpc_dummy_work = NULL;
+static ssl::context* rpc_ssl_context = nullptr;
+static boost::thread_group* rpc_worker_group = nullptr;
+static boost::asio::io_service::work* rpc_dummy_work = nullptr;
 static std::vector<CSubNet> rpc_allow_subnets; //!< List of subnets to allow RPC connections from
 static std::vector<boost::shared_ptr<ip::tcp::acceptor> > rpc_acceptors;
 
@@ -72,7 +71,7 @@ void RPCTypeCheck(const UniValue& params,
                   bool fAllowNull)
 {
     unsigned int i = 0;
-    BOOST_FOREACH(UniValue::VType t, typesExpected) {
+    for (UniValue::VType t : typesExpected) {
         if (params.size() <= i)
             break;
 
@@ -90,7 +89,7 @@ void RPCTypeCheckObj(const UniValue& o,
                   const map<string, UniValue::VType>& typesExpected,
                   bool fAllowNull)
 {
-    BOOST_FOREACH(const PAIRTYPE(string, UniValue::VType)& t, typesExpected) {
+    for (const PAIRTYPE(string, UniValue::VType)& t : typesExpected) {
         const UniValue& v = find_value(o, t.first);
         if (!fAllowNull && v.isNull())
             throw JSONRPCError(RPC_TYPE_ERROR, strprintf("Missing %s", t.first));
@@ -192,7 +191,7 @@ string CRPCTable::help(string strCommand) const
         vCommands.push_back(make_pair(mi->second->category + mi->first, mi->second));
     sort(vCommands.begin(), vCommands.end());
 
-    BOOST_FOREACH (const PAIRTYPE(string, const CRPCCommand*) & command, vCommands) {
+    for (const PAIRTYPE(string, const CRPCCommand*) & command : vCommands) {
         const CRPCCommand* pcmd = command.second;
         string strMethod = pcmd->name;
         // We already filter duplicates, but these deprecated screw up the sort order
@@ -441,7 +440,7 @@ const CRPCCommand* CRPCTable::operator[](string name) const
 {
     map<string, const CRPCCommand*>::const_iterator it = mapCommands.find(name);
     if (it == mapCommands.end())
-        return NULL;
+        return nullptr;
     return (*it).second;
 }
 
@@ -490,7 +489,7 @@ CNetAddr BoostAsioToCNetAddr(boost::asio::ip::address address)
 bool ClientAllowed(const boost::asio::ip::address& address)
 {
     CNetAddr netaddr = BoostAsioToCNetAddr(address);
-    BOOST_FOREACH (const CSubNet& subnet, rpc_allow_subnets)
+    for (const CSubNet& subnet : rpc_allow_subnets)
         if (subnet.Match(netaddr))
             return true;
     return false;
@@ -614,7 +613,7 @@ void StartRPCThreads()
     rpc_allow_subnets.push_back(CSubNet("::1"));         // always allow IPv6 localhost
     if (mapMultiArgs.count("-rpcallowip")) {
         const vector<string>& vAllow = mapMultiArgs["-rpcallowip"];
-        BOOST_FOREACH (string strAllow, vAllow) {
+        for (string strAllow : vAllow) {
             CSubNet subnet(strAllow);
             if (!subnet.IsValid()) {
                 uiInterface.ThreadSafeMessageBox(
@@ -627,7 +626,7 @@ void StartRPCThreads()
         }
     }
     std::string strAllowed;
-    BOOST_FOREACH (const CSubNet& subnet, rpc_allow_subnets)
+    for (const CSubNet& subnet : rpc_allow_subnets)
         strAllowed += subnet.ToString() + " ";
     LogPrint("rpc", "Allowing RPC connections from: %s\n", strAllowed);
 
@@ -644,7 +643,7 @@ void StartRPCThreads()
         strRPCUserColonPass = mapArgs["-rpcuser"] + ":" + mapArgs["-rpcpassword"];
     }
 
-    assert(rpc_io_service == NULL);
+    assert(rpc_io_service == nullptr);
     rpc_io_service = new asio::io_service();
     rpc_ssl_context = new ssl::context(*rpc_io_service, ssl::context::sslv23);
 
@@ -683,7 +682,7 @@ void StartRPCThreads()
         }
     } else if (mapArgs.count("-rpcbind")) // Specific bind address
     {
-        BOOST_FOREACH (const std::string& addr, mapMultiArgs["-rpcbind"]) {
+        for (const std::string& addr : mapMultiArgs["-rpcbind"]) {
             try {
                 vEndpoints.push_back(ParseEndpoint(addr, defaultPort));
             } catch (const boost::system::system_error&) {
@@ -705,7 +704,7 @@ void StartRPCThreads()
     bool fListening = false;
     std::string strerr;
     std::string straddress;
-    BOOST_FOREACH (const ip::tcp::endpoint& endpoint, vEndpoints) {
+    for (const ip::tcp::endpoint& endpoint : vEndpoints) {
         try {
             asio::ip::address bindAddress = endpoint.address();
             straddress = bindAddress.to_string();
@@ -752,7 +751,7 @@ void StartRPCThreads()
 
 void StartDummyRPCThread()
 {
-    if (rpc_io_service == NULL) {
+    if (rpc_io_service == nullptr) {
         rpc_io_service = new asio::io_service();
         /* Create dummy "work" to keep the thread from exiting when no timeouts active,
          * see http://www.boost.org/doc/libs/1_51_0/doc/html/boost_asio/reference/io_service.html#boost_asio.reference.io_service.stopping_the_io_service_from_running_out_of_work */
@@ -765,7 +764,7 @@ void StartDummyRPCThread()
 
 void StopRPCThreads()
 {
-    if (rpc_io_service == NULL) return;
+    if (rpc_io_service == nullptr) return;
     // Set this to false first, so that longpolling loops will exit when woken up
     fRPCRunning = false;
 
@@ -773,13 +772,13 @@ void StopRPCThreads()
     // This is not done automatically by ->stop(), and in some cases the destructor of
     // asio::io_service can hang if this is skipped.
     boost::system::error_code ec;
-    BOOST_FOREACH (const boost::shared_ptr<ip::tcp::acceptor>& acceptor, rpc_acceptors) {
+    for (const boost::shared_ptr<ip::tcp::acceptor>& acceptor : rpc_acceptors) {
         acceptor->cancel(ec);
         if (ec)
             LogPrintf("%s: Warning: %s when cancelling acceptor", __func__, ec.message());
     }
     rpc_acceptors.clear();
-    BOOST_FOREACH (const PAIRTYPE(std::string, boost::shared_ptr<deadline_timer>) & timer, deadlineTimers) {
+    for (const PAIRTYPE(std::string, boost::shared_ptr<deadline_timer>) & timer : deadlineTimers) {
         timer.second->cancel(ec);
         if (ec)
             LogPrintf("%s: Warning: %s when cancelling timer", __func__, ec.message());
@@ -791,16 +790,16 @@ void StopRPCThreads()
 
     rpc_io_service->stop();
     cvBlockChange.notify_all();
-    if (rpc_worker_group != NULL)
+    if (rpc_worker_group != nullptr)
         rpc_worker_group->join_all();
     delete rpc_dummy_work;
-    rpc_dummy_work = NULL;
+    rpc_dummy_work = nullptr;
     delete rpc_worker_group;
-    rpc_worker_group = NULL;
+    rpc_worker_group = nullptr;
     delete rpc_ssl_context;
-    rpc_ssl_context = NULL;
+    rpc_ssl_context = nullptr;
     delete rpc_io_service;
-    rpc_io_service = NULL;
+    rpc_io_service = nullptr;
 }
 
 bool IsRPCRunning()

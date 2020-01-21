@@ -52,7 +52,7 @@ void ScriptPubKeyToJSON(const CScript& scriptPubKey, UniValue& out, bool fInclud
     out.push_back(Pair("type", GetTxnOutputType(type)));
 
     UniValue a(UniValue::VARR);
-    BOOST_FOREACH (const CTxDestination& addr, addresses)
+    for (const CTxDestination& addr : addresses)
         a.push_back(CBitcoinAddress(addr).ToString());
     out.push_back(Pair("addresses", a));
 }
@@ -63,7 +63,7 @@ void TxToJSON(const CTransaction& tx, const uint256 hashBlock, UniValue& entry)
     entry.push_back(Pair("version", tx.nVersion));
     entry.push_back(Pair("locktime", (int64_t)tx.nLockTime));
     UniValue vin(UniValue::VARR);
-    BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+    for (const CTxIn& txin : tx.vin) {
         UniValue in(UniValue::VOBJ);
         if (tx.IsCoinBase())
             in.push_back(Pair("coinbase", HexStr(txin.scriptSig.begin(), txin.scriptSig.end())));
@@ -254,9 +254,9 @@ UniValue listunspent(const UniValue& params, bool fHelp)
 
     UniValue results(UniValue::VARR);
     vector<COutput> vecOutputs;
-    assert(pwalletMain != NULL);
+    assert(pwalletMain != nullptr);
     pwalletMain->AvailableCoins(vecOutputs, false);
-    BOOST_FOREACH (const COutput& out, vecOutputs) {
+    for (const COutput& out : vecOutputs) {
         if (out.nDepth < nMinDepth || out.nDepth > nMaxDepth)
             continue;
 
@@ -357,7 +357,7 @@ UniValue createrawtransaction(const UniValue& params, bool fHelp)
 
     set<CBitcoinAddress> setAddress;
     vector<string> addrList = sendTo.getKeys();
-    BOOST_FOREACH(const string& name_, addrList) {
+    for (const string& name_ : addrList) {
         CBitcoinAddress address(name_);
         if (!address.IsValid())
             throw JSONRPCError(RPC_INVALID_ADDRESS_OR_KEY, string("Invalid REEX address: ")+name_);
@@ -557,7 +557,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
         CCoinsViewMemPool viewMempool(&viewChain, mempool);
         view.SetBackend(viewMempool); // temporarily switch cache backend to db+mempool view
 
-        BOOST_FOREACH (const CTxIn& txin, mergedTx.vin) {
+        for (const CTxIn& txin : mergedTx.vin) {
             const uint256& prevHash = txin.prevout.hash;
             CCoins coins;
             view.AccessCoins(prevHash); // this is certainly allowed to fail
@@ -660,7 +660,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
     for (unsigned int i = 0; i < mergedTx.vin.size(); i++) {
         CTxIn& txin = mergedTx.vin[i];
         const CCoins* coins = view.AccessCoins(txin.prevout.hash);
-        if (coins == NULL || !coins->IsAvailable(txin.prevout.n)) {
+        if (coins == nullptr || !coins->IsAvailable(txin.prevout.n)) {
             fComplete = false;
             continue;
         }
@@ -672,7 +672,7 @@ UniValue signrawtransaction(const UniValue& params, bool fHelp)
             SignSignature(keystore, prevPubKey, mergedTx, i, nHashType);
 
         // ... and merge in other signatures:
-        BOOST_FOREACH (const CMutableTransaction& txv, txVariants) {
+        for (const CMutableTransaction& txv : txVariants) {
             txin.scriptSig = CombineSignatures(prevPubKey, mergedTx, i, txin.scriptSig, txv.vin[i].scriptSig);
         }
         if (!VerifyScript(txin.scriptSig, prevPubKey, STANDARD_SCRIPT_VERIFY_FLAGS, MutableTransactionSignatureChecker(&mergedTx, i)))
@@ -734,7 +734,7 @@ UniValue sendrawtransaction(const UniValue& params, bool fHelp)
             RelayTransactionLockReq(tx, true);
         }
         CValidationState state;
-        if (!AcceptToMemoryPool(mempool, state, tx, false, NULL, !fOverrideFees)) {
+        if (!AcceptToMemoryPool(mempool, state, tx, false, nullptr, !fOverrideFees)) {
             if (state.IsInvalid())
                 throw JSONRPCError(RPC_TRANSACTION_REJECTED, strprintf("%i: %s", state.GetRejectCode(), state.GetRejectReason()));
             else

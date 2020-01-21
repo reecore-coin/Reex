@@ -23,7 +23,6 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/filesystem.hpp>
-#include <boost/foreach.hpp>
 #include <boost/iostreams/concepts.hpp>
 #include <boost/iostreams/stream.hpp>
 #include <boost/shared_ptr.hpp>
@@ -54,7 +53,7 @@ string HTTPPost(const string& strMsg, const map<string, string>& mapRequestHeade
       << "Content-Length: " << strMsg.size() << "\r\n"
       << "Connection: close\r\n"
       << "Accept: application/json\r\n";
-    BOOST_FOREACH (const PAIRTYPE(string, string) & item, mapRequestHeaders)
+    for (const PAIRTYPE(string, string) & item : mapRequestHeaders)
         s << item.first << ": " << item.second << "\r\n";
     s << "\r\n"
       << strMsg;
@@ -166,7 +165,7 @@ bool ReadHTTPRequestLine(std::basic_istream<char>& stream, int& proto, string& h
 
     proto = 0;
     const char* ver = strstr(strProto.c_str(), "HTTP/1.");
-    if (ver != NULL)
+    if (ver != nullptr)
         proto = atoi(ver + 7);
 
     return true;
@@ -183,7 +182,7 @@ int ReadHTTPStatus(std::basic_istream<char>& stream, int& proto)
         return HTTP_INTERNAL_SERVER_ERROR;
     proto = 0;
     const char* ver = strstr(str.c_str(), "HTTP/1.");
-    if (ver != NULL)
+    if (ver != nullptr)
         proto = atoi(ver + 7);
     return atoi(vWords[1].c_str());
 }

@@ -494,7 +494,7 @@ void ProposalList::vote_click_handler(const std::string voteString)
             }
 
             CMasternode* pmn = mnodeman.Find(pubKeyMasternode);
-            if (pmn == NULL) {
+            if (pmn == nullptr) {
                 failed++;
                 continue;
             }
@@ -506,7 +506,7 @@ void ProposalList::vote_click_handler(const std::string voteString)
             }
 
             std::string strError = "";
-            if (budget.UpdateProposal(vote, NULL, strError)) {
+            if (budget.UpdateProposal(vote, nullptr, strError)) {
                 budget.mapSeenMasternodeBudgetVotes.insert(make_pair(vote.GetHash(), vote));
                 vote.Relay();
                 success++;

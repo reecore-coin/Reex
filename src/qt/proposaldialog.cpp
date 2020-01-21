@@ -229,7 +229,7 @@ bool ProposalDialog::validateProposal()
     // Start must be in the next budget cycle
     int nBlockMin = 0;
     CBlockIndex* pindexPrev = chainActive.Tip();
-    if (pindexPrev != NULL) nBlockMin = pindexPrev->nHeight - pindexPrev->nHeight % GetBudgetPaymentCycleBlocks() + GetBudgetPaymentCycleBlocks();
+    if (pindexPrev != nullptr) nBlockMin = pindexPrev->nHeight - pindexPrev->nHeight % GetBudgetPaymentCycleBlocks() + GetBudgetPaymentCycleBlocks();
 
     int nBlockStart = ui->blockEdit->text().toInt();
     if (nBlockStart < nBlockMin) strError = "Invalid block start, must be more than current height.";

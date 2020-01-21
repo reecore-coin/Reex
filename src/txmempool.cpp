@@ -75,14 +75,14 @@ public:
     size_t FeeSamples() const { return feeSamples.size(); }
     size_t GetFeeSamples(std::vector<CFeeRate>& insertInto) const
     {
-        BOOST_FOREACH (const CFeeRate& f, feeSamples)
+        for (const CFeeRate& f : feeSamples)
             insertInto.push_back(f);
         return feeSamples.size();
     }
     size_t PrioritySamples() const { return prioritySamples.size(); }
     size_t GetPrioritySamples(std::vector<double>& insertInto) const
     {
-        BOOST_FOREACH (double d, prioritySamples)
+        for (double d : prioritySamples)
             insertInto.push_back(d);
         return prioritySamples.size();
     }
@@ -101,7 +101,7 @@ public:
     }
     static bool AreSane(const std::vector<CFeeRate>& vecFee, const CFeeRate& minRelayFee)
     {
-        BOOST_FOREACH (CFeeRate fee, vecFee) {
+        for (CFeeRate fee : vecFee) {
             if (!AreSane(fee, minRelayFee))
                 return false;
         }
@@ -113,7 +113,7 @@ public:
     }
     static bool AreSane(const std::vector<double> vecPriority)
     {
-        BOOST_FOREACH (double priority, vecPriority) {
+        for (double priority : vecPriority) {
             if (!AreSane(priority))
                 return false;
         }
@@ -212,7 +212,7 @@ public:
         // to confirm.
         std::vector<std::vector<const CTxMemPoolEntry*> > entriesByConfirmations;
         entriesByConfirmations.resize(history.size());
-        BOOST_FOREACH (const CTxMemPoolEntry& entry, entries) {
+        for (const CTxMemPoolEntry& entry : entries) {
             // How many blocks did it take for miners to include this transaction?
             int delta = nBlockHeight - entry.GetHeight();
             if (delta <= 0) {
@@ -232,7 +232,7 @@ public:
                 std::random_shuffle(e.begin(), e.end());
                 e.resize(10);
             }
-            BOOST_FOREACH (const CTxMemPoolEntry* entry, e) {
+            for (const CTxMemPoolEntry* entry : e) {
                 // Fees are stored and reported as REEX-per-kb:
                 CFeeRate feeRate(entry->GetFee(), entry->GetTxSize());
                 double dPriority = entry->GetPriority(entry->GetHeight()); // Want priority when it went IN
@@ -324,7 +324,7 @@ public:
     {
         fileout << nBestSeenHeight;
         fileout << history.size();
-        BOOST_FOREACH (const CBlockAverage& entry, history) {
+        for (const CBlockAverage& entry : history) {
             entry.Write(fileout);
         }
     }
@@ -453,7 +453,7 @@ void CTxMemPool::remove(const CTransaction& origTx, std::list<CTransaction>& rem
                     txToRemove.push_back(it->second.ptx->GetHash());
                 }
             }
-            BOOST_FOREACH (const CTxIn& txin, tx.vin)
+            for (const CTxIn& txin : tx.vin)
                 mapNextTx.erase(txin.prevout);
 
             removed.push_back(tx);
@@ -471,7 +471,7 @@ void CTxMemPool::removeCoinbaseSpends(const CCoinsViewCache* pcoins, unsigned in
     list<CTransaction> transactionsToRemove;
     for (std::map<uint256, CTxMemPoolEntry>::const_iterator it = mapTx.begin(); it != mapTx.end(); it++) {
         const CTransaction& tx = it->second.GetTx();
-        BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+        for (const CTxIn& txin : tx.vin) {
             std::map<uint256, CTxMemPoolEntry>::const_iterator it2 = mapTx.find(txin.prevout.hash);
             if (it2 != mapTx.end())
                 continue;
@@ -483,7 +483,7 @@ void CTxMemPool::removeCoinbaseSpends(const CCoinsViewCache* pcoins, unsigned in
             }
         }
     }
-    BOOST_FOREACH (const CTransaction& tx, transactionsToRemove) {
+    for (const CTransaction& tx : transactionsToRemove) {
         list<CTransaction> removed;
         remove(tx, removed, true);
     }
@@ -494,7 +494,7 @@ void CTxMemPool::removeConflicts(const CTransaction& tx, std::list<CTransaction>
     // Remove transactions which depend on inputs of tx, recursively
     list<CTransaction> result;
     LOCK(cs);
-    BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+    for (const CTxIn& txin : tx.vin) {
         std::map<COutPoint, CInPoint>::iterator it = mapNextTx.find(txin.prevout);
         if (it != mapNextTx.end()) {
             const CTransaction& txConflict = *it->second.ptx;
@@ -512,13 +512,13 @@ void CTxMemPool::removeForBlock(const std::vector<CTransaction>& vtx, unsigned i
 {
     LOCK(cs);
     std::vector<CTxMemPoolEntry> entries;
-    BOOST_FOREACH (const CTransaction& tx, vtx) {
+    for (const CTransaction& tx : vtx) {
         uint256 hash = tx.GetHash();
         if (mapTx.count(hash))
             entries.push_back(mapTx[hash]);
     }
     minerPolicyEstimator->seenBlock(entries, nBlockHeight, minRelayFee);
-    BOOST_FOREACH (const CTransaction& tx, vtx) {
+    for (const CTransaction& tx : vtx) {
         std::list<CTransaction> dummy;
         remove(tx, dummy, false);
         removeConflicts(tx, conflicts);
@@ -554,7 +554,7 @@ void CTxMemPool::check(const CCoinsViewCache* pcoins) const
         checkTotal += it->second.GetTxSize();
         const CTransaction& tx = it->second.GetTx();
         bool fDependsWait = false;
-        BOOST_FOREACH (const CTxIn& txin, tx.vin) {
+        for (const CTxIn& txin : tx.vin) {
             // Check that every mempool transaction's inputs refer to available coins, or other mempool tx's.
             std::map<uint256, CTxMemPoolEntry>::const_iterator it2 = mapTx.find(txin.prevout.hash);
             if (it2 != mapTx.end()) {
@@ -577,7 +577,7 @@ void CTxMemPool::check(const CCoinsViewCache* pcoins) const
         else {
             CValidationState state;
             CTxUndo undo;
-            assert(CheckInputs(tx, state, mempoolDuplicate, false, 0, false, NULL));
+            assert(CheckInputs(tx, state, mempoolDuplicate, false, 0, false, nullptr));
             UpdateCoins(tx, state, mempoolDuplicate, undo, 1000000);
         }
     }
@@ -591,7 +591,7 @@ void CTxMemPool::check(const CCoinsViewCache* pcoins) const
             stepsSinceLastRemove++;
             assert(stepsSinceLastRemove < waitingOnDependants.size());
         } else {
-            assert(CheckInputs(entry->GetTx(), state, mempoolDuplicate, false, 0, false, NULL));
+            assert(CheckInputs(entry->GetTx(), state, mempoolDuplicate, false, 0, false, nullptr));
             CTxUndo undo;
             UpdateCoins(entry->GetTx(), state, mempoolDuplicate, undo, 1000000);
             stepsSinceLastRemove = 0;

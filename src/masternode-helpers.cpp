@@ -55,7 +55,7 @@ bool CMasternodeSigner::IsVinAssociatedWithPubkey(CTxIn& vin, CPubKey& pubkey)
     CTransaction txVin;
     uint256 hash;
     if (GetTransaction(vin.prevout.hash, txVin, hash, true)) {
-        BOOST_FOREACH (CTxOut out, txVin.vout) {
+        for (CTxOut out : txVin.vout) {
             if (out.nValue == GetMasternodeCollateral() * COIN) {
                 if (out.scriptPubKey == payee2) return true;
             }

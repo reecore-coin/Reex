@@ -29,7 +29,6 @@
 #include <boost/algorithm/string/split.hpp>
 #include <boost/filesystem/operations.hpp>
 #include <boost/filesystem/path.hpp>
-#include <boost/foreach.hpp>
 #include <boost/test/unit_test.hpp>
 
 #include <univalue.h>
@@ -103,7 +102,7 @@ void DoTest(const CScript& scriptPubKey, const CScript& scriptSig, int flags, bo
 #if defined(HAVE_CONSENSUS_LIB)
     CDataStream stream(SER_NETWORK, PROTOCOL_VERSION);
     stream << tx2;
-    BOOST_CHECK_MESSAGE(bitcoinconsensus_verify_script(begin_ptr(scriptPubKey), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), 0, flags, NULL) == expect,message);
+    BOOST_CHECK_MESSAGE(bitcoinconsensus_verify_script(begin_ptr(scriptPubKey), scriptPubKey.size(), (const unsigned char*)&stream[0], stream.size(), 0, flags, nullptr) == expect,message);
 #endif
 }
 
@@ -582,7 +581,7 @@ BOOST_AUTO_TEST_CASE(script_build)
     std::string strGood;
     std::string strBad;
 
-    BOOST_FOREACH(TestBuilder& test, good) {
+    for (TestBuilder& test : good) {
         test.Test(true);
         std::string str = test.GetJSON().write();
 #ifndef UPDATE_JSON_TESTS
@@ -592,7 +591,7 @@ BOOST_AUTO_TEST_CASE(script_build)
 #endif
         strGood += str + ",\n";
     }
-    BOOST_FOREACH(TestBuilder& test, bad) {
+    for (TestBuilder& test : bad) {
         test.Test(false);
         std::string str = test.GetJSON().write();
 #ifndef UPDATE_JSON_TESTS
@@ -712,7 +711,7 @@ sign_multisig(CScript scriptPubKey, std::vector<CKey> keys, CTransaction transac
     // and vice-versa)
     //
     result << OP_0;
-    BOOST_FOREACH(const CKey &key, keys)
+    for (const CKey &key : keys)
     {
         vector<unsigned char> vchSig;
         BOOST_CHECK(key.Sign(hash, vchSig));

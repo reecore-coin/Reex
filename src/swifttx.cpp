@@ -58,7 +58,7 @@ void ProcessMessageSwiftX(CNode* pfrom, std::string& strCommand, CDataStream& vR
             return;
         }
 
-        BOOST_FOREACH (const CTxOut o, tx.vout) {
+        for (const CTxOut o : tx.vout) {
             // IX supports normal scripts and unspendable scripts (used in DS collateral and Budget collateral).
             // TODO: Look into other script types that are normal and can be included
             if (!o.scriptPubKey.IsNormalPaymentScript() && !o.scriptPubKey.IsUnspendable()) {
@@ -99,7 +99,7 @@ void ProcessMessageSwiftX(CNode* pfrom, std::string& strCommand, CDataStream& vR
                 pfrom->addr.ToString().c_str(), pfrom->cleanSubVer.c_str(),
                 tx.GetHash().ToString().c_str());
 
-            BOOST_FOREACH (const CTxIn& in, tx.vin) {
+            for (const CTxIn& in : tx.vin) {
                 if (!mapLockedInputs.count(in.prevout)) {
                     mapLockedInputs.insert(make_pair(in.prevout, tx.GetHash()));
                 }
@@ -174,10 +174,10 @@ bool IsIXTXValid(const CTransaction& txCollateral)
     CAmount nValueOut = 0;
     bool missingTx = false;
 
-    BOOST_FOREACH (const CTxOut o, txCollateral.vout)
+    for (const CTxOut o : txCollateral.vout)
         nValueOut += o.nValue;
 
-    BOOST_FOREACH (const CTxIn i, txCollateral.vin) {
+    for (const CTxIn i : txCollateral.vin) {
         CTransaction tx2;
         uint256 hash;
         if (GetTransaction(i.prevout.hash, tx2, hash, true)) {
@@ -215,7 +215,7 @@ bool IsIXTXValid(const CTransaction& txCollateral)
 int64_t CreateNewLock(CTransaction tx)
 {
     int64_t nTxAge = 0;
-    BOOST_REVERSE_FOREACH (CTxIn i, tx.vin) {
+    for(CTxIn i : tx.vin) {
         nTxAge = GetInputAge(i);
         if (nTxAge < 5) //1 less than the "send IX" gui requires, incase of a block propagating the network at the time
         {
@@ -296,7 +296,7 @@ bool ProcessConsensusVote(CNode* pnode, CConsensusVote& ctx)
     int n = mnodeman.GetMasternodeRank(ctx.vinMasternode, ctx.nBlockHeight, MIN_SWIFTTX_PROTO_VERSION);
 
     CMasternode* pmn = mnodeman.Find(ctx.vinMasternode);
-    if (pmn != NULL)
+    if (pmn != nullptr)
         LogPrint("swifttx", "SwiftX::ProcessConsensusVote - Masternode ADDR %s %d\n", pmn->addr.ToString().c_str(), n);
 
     if (n == -1) {
@@ -359,7 +359,7 @@ bool ProcessConsensusVote(CNode* pnode, CConsensusVote& ctx)
 #endif
 
                 if (mapTxLockReq.count(ctx.txHash)) {
-                    BOOST_FOREACH (const CTxIn& in, tx.vin) {
+                    for (const CTxIn& in : tx.vin) {
                         if (!mapLockedInputs.count(in.prevout)) {
                             mapLockedInputs.insert(make_pair(in.prevout, ctx.txHash));
                         }
@@ -391,7 +391,7 @@ bool CheckForConflictingLocks(CTransaction& tx)
         Blocks could have been rejected during this time, which is OK. After they cancel out, the client will
         rescan the blocks and find they're acceptable and then take the chain with the most work.
     */
-    BOOST_FOREACH (const CTxIn& in, tx.vin) {
+    for (const CTxIn& in : tx.vin) {
         if (mapLockedInputs.count(in.prevout)) {
             if (mapLockedInputs[in.prevout] != tx.GetHash()) {
                 LogPrintf("SwiftX::CheckForConflictingLocks - found two complete conflicting locks - removing both. %s %s", tx.GetHash().ToString().c_str(), mapLockedInputs[in.prevout].ToString().c_str());
@@ -422,7 +422,7 @@ int64_t GetAverageVoteTime()
 
 void CleanTransactionLocksList()
 {
-    if (chainActive.Tip() == NULL) return;
+    if (chainActive.Tip() == nullptr) return;
 
     std::map<uint256, CTransactionLock>::iterator it = mapTxLocks.begin();
 
@@ -433,13 +433,13 @@ void CleanTransactionLocksList()
             if (mapTxLockReq.count(it->second.txHash)) {
                 CTransaction& tx = mapTxLockReq[it->second.txHash];
 
-                BOOST_FOREACH (const CTxIn& in, tx.vin)
+                for (const CTxIn& in : tx.vin)
                     mapLockedInputs.erase(in.prevout);
 
                 mapTxLockReq.erase(it->second.txHash);
                 mapTxLockReqRejected.erase(it->second.txHash);
 
-                BOOST_FOREACH (CConsensusVote& v, it->second.vecConsensusVotes)
+                for (CConsensusVote& v : it->second.vecConsensusVotes)
                     mapTxLockVote.erase(v.GetHash());
             }
 
@@ -464,7 +464,7 @@ bool CConsensusVote::SignatureValid()
 
     CMasternode* pmn = mnodeman.Find(vinMasternode);
 
-    if (pmn == NULL) {
+    if (pmn == nullptr) {
         LogPrintf("SwiftX::CConsensusVote::SignatureValid() - Unknown Masternode\n");
         return false;
     }
@@ -508,7 +508,7 @@ bool CConsensusVote::Sign()
 
 bool CTransactionLock::SignaturesValid()
 {
-    BOOST_FOREACH (CConsensusVote vote, vecConsensusVotes) {
+    for (CConsensusVote vote : vecConsensusVotes) {
         int n = mnodeman.GetMasternodeRank(vote.vinMasternode, vote.nBlockHeight, MIN_SWIFTTX_PROTO_VERSION);
 
         if (n == -1) {
@@ -545,7 +545,7 @@ int CTransactionLock::CountSignatures()
     if (nBlockHeight == 0) return -1;
 
     int n = 0;
-    BOOST_FOREACH (CConsensusVote v, vecConsensusVotes) {
+    for (CConsensusVote v : vecConsensusVotes) {
         if (v.nBlockHeight == nBlockHeight) {
             n++;
         }

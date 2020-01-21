@@ -39,7 +39,7 @@ void CActiveMasternode::ManageStatus()
     if (status == ACTIVE_MASTERNODE_INITIAL) {
         CMasternode* pmn;
         pmn = mnodeman.Find(pubKeyMasternode);
-        if (pmn != NULL) {
+        if (pmn != nullptr) {
             pmn->Check();
             if (pmn->IsEnabled() && pmn->protocolVersion == PROTOCOL_VERSION) EnableHotColdMasterNode(pmn->vin, pmn->addr);
         }
@@ -86,7 +86,7 @@ void CActiveMasternode::ManageStatus()
 
         LogPrintf("CActiveMasternode::ManageStatus() - Checking inbound connection to '%s'\n", service.ToString());
 
-        CNode* pnode = ConnectNode((CAddress)service, NULL);
+        CNode* pnode = ConnectNode((CAddress)service, nullptr);
         if (!pnode) {
             notCapableReason = "Could not connect to " + service.ToString();
             LogPrintf("CActiveMasternode::ManageStatus() - not capable: %s\n", notCapableReason);
@@ -185,7 +185,7 @@ bool CActiveMasternode::SendMasternodePing(std::string& errorMessage)
 
     // Update lastPing for our masternode in Masternode list
     CMasternode* pmn = mnodeman.Find(vin);
-    if (pmn != NULL) {
+    if (pmn != nullptr) {
         if (pmn->IsPingedWithin(MASTERNODE_PING_SECONDS, mnp.sigTime)) {
             errorMessage = "Too early to send Masternode Ping";
             return false;
@@ -279,7 +279,7 @@ bool CActiveMasternode::Register(CTxIn vin, CService service, CKey keyCollateral
     masternodeSync.AddedMasternodeList(mnb.GetHash());
 
     CMasternode* pmn = mnodeman.Find(vin);
-    if (pmn == NULL) {
+    if (pmn == nullptr) {
         CMasternode mn(mnb);
         mnodeman.Add(mn);
     } else {
@@ -320,7 +320,7 @@ bool CActiveMasternode::GetMasterNodeVin(CTxIn& vin, CPubKey& pubkey, CKey& secr
         }
 
         bool found = false;
-        BOOST_FOREACH (COutput& out, possibleCoins) {
+        for (COutput& out : possibleCoins) {
             if (out.tx->GetHash() == txHash && out.i == outputIndex) {
                 selectedOutput = &out;
                 found = true;
@@ -383,7 +383,7 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
     // Temporary unlock MN coins from masternode.conf
     if (GetBoolArg("-mnconflock", true)) {
         uint256 mnTxHash;
-        BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+        for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
             mnTxHash.SetHex(mne.getTxHash());
 
             int nIndex;
@@ -401,12 +401,12 @@ vector<COutput> CActiveMasternode::SelectCoinsMasternode()
 
     // Lock MN coins from masternode.conf back if they where temporary unlocked
     if (!confLockedCoins.empty()) {
-        BOOST_FOREACH (COutPoint outpoint, confLockedCoins)
+        for (COutPoint outpoint : confLockedCoins)
             pwalletMain->LockCoin(outpoint);
     }
 
     // Filter
-    BOOST_FOREACH (const COutput& out, vCoins) {
+    for (const COutput& out : vCoins) {
         if (out.tx->vout[out.i].nValue == GetMasternodeCollateral() * COIN) { //exactly
             filteredCoins.push_back(out);
         }

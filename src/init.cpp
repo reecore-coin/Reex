@@ -66,7 +66,7 @@ using namespace boost;
 using namespace std;
 
 #ifdef ENABLE_WALLET
-CWallet* pwalletMain = NULL;
+CWallet* pwalletMain = nullptr;
 int nWalletBackups = 10;
 #endif
 volatile bool fFeeEstimatesInitialized = false;
@@ -74,7 +74,7 @@ volatile bool fRestartRequested = false; // true: restart false: shutdown
 extern std::list<uint256> listAccCheckpointsNoDB;
 
 #if ENABLE_ZMQ
-static CZMQNotificationInterface* pzmqNotificationInterface = NULL;
+static CZMQNotificationInterface* pzmqNotificationInterface = nullptr;
 #endif
 
 #ifdef WIN32
@@ -159,8 +159,8 @@ public:
     // Writes do not need similar protection, as failure to write is handled by the caller.
 };
 
-static CCoinsViewDB* pcoinsdbview = NULL;
-static CCoinsViewErrorCatcher* pcoinscatcher = NULL;
+static CCoinsViewDB* pcoinsdbview = nullptr;
+static CCoinsViewErrorCatcher* pcoinscatcher = nullptr;
 
 /** Preparing steps before shutting down or restarting the wallet */
 void PrepareShutdown()
@@ -183,7 +183,7 @@ void PrepareShutdown()
 #ifdef ENABLE_WALLET
     if (pwalletMain)
         bitdb.Flush(false);
-    GenerateBitcoins(false, NULL, 0);
+    GenerateBitcoins(false, nullptr, 0);
 #endif
     StopNode();
     InterruptTorControl();
@@ -205,22 +205,22 @@ void PrepareShutdown()
 
     {
         LOCK(cs_main);
-        if (pcoinsTip != NULL) {
+        if (pcoinsTip != nullptr) {
             FlushStateToDisk();
 
             //record that client took the proper shutdown procedure
             pblocktree->WriteFlag("shutdown", true);
         }
         delete pcoinsTip;
-        pcoinsTip = NULL;
+        pcoinsTip = nullptr;
         delete pcoinscatcher;
-        pcoinscatcher = NULL;
+        pcoinscatcher = nullptr;
         delete pcoinsdbview;
-        pcoinsdbview = NULL;
+        pcoinsdbview = nullptr;
         delete pblocktree;
-        pblocktree = NULL;
+        pblocktree = nullptr;
         delete pSporkDB;
-        pSporkDB = NULL;
+        pSporkDB = nullptr;
     }
 #ifdef ENABLE_WALLET
     if (pwalletMain)
@@ -231,7 +231,7 @@ void PrepareShutdown()
     if (pzmqNotificationInterface) {
         UnregisterValidationInterface(pzmqNotificationInterface);
         delete pzmqNotificationInterface;
-        pzmqNotificationInterface = NULL;
+        pzmqNotificationInterface = nullptr;
     }
 #endif
 
@@ -260,7 +260,7 @@ void Shutdown()
 // Shutdown part 2: delete wallet instance
 #ifdef ENABLE_WALLET
     delete pwalletMain;
-    pwalletMain = NULL;
+    pwalletMain = nullptr;
 #endif
     LogPrintf("%s: done\n", __func__);
 }
@@ -597,7 +597,7 @@ void ThreadImport(std::vector<boost::filesystem::path> vImportFiles)
     }
 
     // -loadblock=
-    BOOST_FOREACH (boost::filesystem::path& path, vImportFiles) {
+    for (boost::filesystem::path& path : vImportFiles) {
         FILE* file = fopen(path.string().c_str(), "rb");
         if (file) {
             CImportingNow imp;
@@ -641,7 +641,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #ifdef _MSC_VER
     // Turn off Microsoft heap dump noise
     _CrtSetReportMode(_CRT_WARN, _CRTDBG_MODE_FILE);
-    _CrtSetReportFile(_CRT_WARN, CreateFileA("NUL", GENERIC_WRITE, 0, NULL, OPEN_EXISTING, 0, 0));
+    _CrtSetReportFile(_CRT_WARN, CreateFileA("NUL", GENERIC_WRITE, 0, nullptr, OPEN_EXISTING, 0, 0));
 #endif
 #if _MSC_VER >= 1400
     // Disable confusing "helpful" text message on abort, Ctrl-C
@@ -658,7 +658,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 #endif
     typedef BOOL(WINAPI * PSETPROCDEPPOL)(DWORD);
     PSETPROCDEPPOL setProcDEPPol = (PSETPROCDEPPOL)GetProcAddress(GetModuleHandleA("Kernel32.dll"), "SetProcessDEPPolicy");
-    if (setProcDEPPol != NULL) setProcDEPPol(PROCESS_DEP_ENABLE);
+    if (setProcDEPPol != nullptr) setProcDEPPol(PROCESS_DEP_ENABLE);
 
     // Initialize Windows Sockets
     WSADATA wsadata;
@@ -684,15 +684,15 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     sa.sa_handler = HandleSIGTERM;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = 0;
-    sigaction(SIGTERM, &sa, NULL);
-    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGTERM, &sa, nullptr);
+    sigaction(SIGINT, &sa, nullptr);
 
     // Reopen debug.log on SIGHUP
     struct sigaction sa_hup;
     sa_hup.sa_handler = HandleSIGHUP;
     sigemptyset(&sa_hup.sa_mask);
     sa_hup.sa_flags = 0;
-    sigaction(SIGHUP, &sa_hup, NULL);
+    sigaction(SIGHUP, &sa_hup, nullptr);
 
 #if defined(__SVR4) && defined(__sun)
     // ignore SIGPIPE on Solaris
@@ -823,7 +823,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         nScriptCheckThreads = MAX_SCRIPTCHECK_THREADS;
 
     fServer = GetBoolArg("-server", false);
-    setvbuf(stdout, NULL, _IOLBF, 0); /// ***TODO*** do we still need this after -printtoconsole is gone?
+    setvbuf(stdout, nullptr, _IOLBF, 0); /// ***TODO*** do we still need this after -printtoconsole is gone?
 
     // Staking needs a CWallet instance, so make sure wallet is enabled
 #ifdef ENABLE_WALLET
@@ -1028,7 +1028,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 }
                 // Loop backward through backup files and keep the N newest ones (1 <= N <= 10)
                 int counter = 0;
-                BOOST_REVERSE_FOREACH (PAIRTYPE(const std::time_t, boost::filesystem::path) file, folder_set) {
+                for (PAIRTYPE(const std::time_t, boost::filesystem::path) file : folder_set) {
                     counter++;
                     if (counter > nWalletBackups) {
                         // More than nWalletBackups backups: delete oldest one(s)
@@ -1122,7 +1122,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     if (mapArgs.count("-onlynet")) {
         std::set<enum Network> nets;
-        BOOST_FOREACH (std::string snet, mapMultiArgs["-onlynet"]) {
+        for (std::string snet : mapMultiArgs["-onlynet"]) {
             enum Network net = ParseNetwork(snet);
             if (net == NET_UNROUTABLE)
                 return InitError(strprintf(_("Unknown network specified in -onlynet: '%s'"), snet));
@@ -1136,7 +1136,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     if (mapArgs.count("-whitelist")) {
-        BOOST_FOREACH (const std::string& net, mapMultiArgs["-whitelist"]) {
+        for (const std::string& net : mapMultiArgs["-whitelist"]) {
             CSubNet subnet(net);
             if (!subnet.IsValid())
                 return InitError(strprintf(_("Invalid netmask specified in -whitelist: '%s'"), net));
@@ -1195,13 +1195,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     bool fBound = false;
     if (fListen) {
         if (mapArgs.count("-bind") || mapArgs.count("-whitebind")) {
-            BOOST_FOREACH (std::string strBind, mapMultiArgs["-bind"]) {
+            for (std::string strBind : mapMultiArgs["-bind"]) {
                 CService addrBind;
                 if (!Lookup(strBind.c_str(), addrBind, GetListenPort(), false))
                     return InitError(strprintf(_("Cannot resolve -bind address: '%s'"), strBind));
                 fBound |= Bind(addrBind, (BF_EXPLICIT | BF_REPORT_ERROR));
             }
-            BOOST_FOREACH (std::string strBind, mapMultiArgs["-whitebind"]) {
+            for (std::string strBind : mapMultiArgs["-whitebind"]) {
                 CService addrBind;
                 if (!Lookup(strBind.c_str(), addrBind, 0, false))
                     return InitError(strprintf(_("Cannot resolve -whitebind address: '%s'"), strBind));
@@ -1220,7 +1220,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     }
 
     if (mapArgs.count("-externalip")) {
-        BOOST_FOREACH (string strAddr, mapMultiArgs["-externalip"]) {
+        for (string strAddr : mapMultiArgs["-externalip"]) {
             CService addrLocal(strAddr, GetListenPort(), fNameLookup);
             if (!addrLocal.IsValid())
                 return InitError(strprintf(_("Cannot resolve -externalip address: '%s'"), strAddr));
@@ -1228,7 +1228,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         }
     }
 
-    BOOST_FOREACH (string strDest, mapMultiArgs["-seednode"])
+    for (string strDest : mapMultiArgs["-seednode"])
         AddOneShot(strDest);
 
 #if ENABLE_ZMQ
@@ -1370,7 +1370,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 // ********************************************************* Step 8: load wallet
 #ifdef ENABLE_WALLET
     if (fDisableWallet) {
-        pwalletMain = NULL;
+        pwalletMain = nullptr;
         LogPrintf("Wallet disabled!\n");
     } else {
         // needed to restore wallet transaction meta data after -zapwallettxes
@@ -1387,7 +1387,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
             }
 
             delete pwalletMain;
-            pwalletMain = NULL;
+            pwalletMain = nullptr;
         }
 
         uiInterface.InitMessage(_("Loading wallet..."));
@@ -1468,7 +1468,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
             // Restore wallet transaction metadata after -zapwallettxes=1
             if (GetBoolArg("-zapwallettxes", false) && GetArg("-zapwallettxes", "1") != "2") {
-                BOOST_FOREACH (const CWalletTx& wtxOld, vWtx) {
+                for (const CWalletTx& wtxOld : vWtx) {
                     uint256 hash = wtxOld.GetHash();
                     std::map<uint256, CWalletTx>::iterator mi = pwalletMain->mapWallet.find(hash);
                     if (mi != pwalletMain->mapWallet.end()) {
@@ -1502,13 +1502,13 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
 
     std::vector<boost::filesystem::path> vImportFiles;
     if (mapArgs.count("-loadblock")) {
-        BOOST_FOREACH (string strFile, mapMultiArgs["-loadblock"])
+        for (string strFile : mapMultiArgs["-loadblock"])
             vImportFiles.push_back(strFile);
     }
     threadGroup.create_thread(boost::bind(&ThreadImport, vImportFiles));
-    if (chainActive.Tip() == NULL) {
+    if (chainActive.Tip() == nullptr) {
         LogPrintf("Waiting for genesis block to be imported...\n");
-        while (!fRequestShutdown && chainActive.Tip() == NULL)
+        while (!fRequestShutdown && chainActive.Tip() == nullptr)
             MilliSleep(10);
     }
 
@@ -1608,7 +1608,7 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
         LOCK(pwalletMain->cs_wallet);
         LogPrintf("Locking Masternodes:\n");
         uint256 mnTxHash;
-        BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+        for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
             LogPrintf("  %s %s\n", mne.getTxHash(), mne.getOutputIndex());
             mnTxHash.SetHex(mne.getTxHash());
             COutPoint outpoint = COutPoint(mnTxHash, boost::lexical_cast<unsigned int>(mne.getOutputIndex()));

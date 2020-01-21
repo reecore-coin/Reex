@@ -178,7 +178,7 @@ void DumpMasternodePayments()
 bool IsBlockValueValid(const CBlock& block, CAmount nExpectedValue, CAmount nMinted)
 {
     CBlockIndex* pindexPrev = chainActive.Tip();
-    if (pindexPrev == NULL) return true;
+    if (pindexPrev == nullptr) return true;
 
     int nHeight = 0;
     if (pindexPrev->GetBlockHash() == block.hashPrevBlock) {
@@ -413,7 +413,7 @@ void CMasternodePayments::ProcessMessageMasternodePayments(CNode* pfrom, std::st
         int nHeight;
         {
             TRY_LOCK(cs_main, locked);
-            if (!locked || chainActive.Tip() == NULL) return;
+            if (!locked || chainActive.Tip() == nullptr) return;
             nHeight = chainActive.Tip()->nHeight;
         }
 
@@ -503,7 +503,7 @@ bool CMasternodePayments::IsScheduled(CMasternode& mn, int nNotBlockHeight)
     int nHeight;
     {
         TRY_LOCK(cs_main, locked);
-        if (!locked || chainActive.Tip() == NULL) return false;
+        if (!locked || chainActive.Tip() == nullptr) return false;
         nHeight = chainActive.Tip()->nHeight;
     }
 
@@ -575,7 +575,7 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
         CAmount requiredTreasuryPayment = GetTreasuryPayment(nBlockHeight, nReward);
 
         bool found = false;
-        BOOST_FOREACH (CTxOut out, txNew.vout) {
+        for (CTxOut out : txNew.vout) {
             if (payeeTreasury == out.scriptPubKey) {
                 if (out.nValue >= requiredTreasuryPayment) {
                     found = true;
@@ -604,16 +604,16 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     CAmount requiredMasternodePayment = GetMasternodePayment(nBlockHeight, nReward, nMasternode_Drift_Count);
 
     //require at least 6 signatures
-    BOOST_FOREACH (CMasternodePayee& payee, vecPayments)
+    for (CMasternodePayee& payee : vecPayments)
         if (payee.nVotes >= nMaxSignatures && payee.nVotes >= MNPAYMENTS_SIGNATURES_REQUIRED)
             nMaxSignatures = payee.nVotes;
 
     // if we don't have at least 6 signatures on a payee, approve whichever is the longest chain
     if (nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;
 
-    BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
+    for (CMasternodePayee& payee : vecPayments) {
         bool found = false;
-        BOOST_FOREACH (CTxOut out, txNew.vout) {
+        for (CTxOut out : txNew.vout) {
             if (payee.scriptPubKey == out.scriptPubKey) {
                 if(out.nValue >= requiredMasternodePayment)
                     found = true;
@@ -647,7 +647,7 @@ std::string CMasternodeBlockPayees::GetRequiredPaymentsString()
 
     std::string ret = "Unknown";
 
-    BOOST_FOREACH (CMasternodePayee& payee, vecPayments) {
+    for (CMasternodePayee& payee : vecPayments) {
         CTxDestination address1;
         ExtractDestination(payee.scriptPubKey, address1);
         CBitcoinAddress address2(address1);
@@ -694,7 +694,7 @@ void CMasternodePayments::CleanPaymentList()
     int nHeight;
     {
         TRY_LOCK(cs_main, locked);
-        if (!locked || chainActive.Tip() == NULL) return;
+        if (!locked || chainActive.Tip() == nullptr) return;
         nHeight = chainActive.Tip()->nHeight;
     }
 
@@ -780,7 +780,7 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight)
         int nCount = 0;
         CMasternode* pmn = mnodeman.GetNextMasternodeInQueueForPayment(nBlockHeight, true, nCount);
 
-        if (pmn != NULL) {
+        if (pmn != nullptr) {
             LogPrint("masternode","CMasternodePayments::ProcessBlock() Found by FindOldestNotInVec \n");
 
             newWinner.nBlockHeight = nBlockHeight;
@@ -831,7 +831,7 @@ bool CMasternodePaymentWinner::SignatureValid()
 {
     CMasternode* pmn = mnodeman.Find(vinMasternode);
 
-    if (pmn != NULL) {
+    if (pmn != nullptr) {
         std::string strMessage = vinMasternode.prevout.ToStringShort() +
                                  boost::lexical_cast<std::string>(nBlockHeight) +
                                  payee.ToString();
@@ -854,7 +854,7 @@ void CMasternodePayments::Sync(CNode* node, int nCountNeeded)
     int nHeight;
     {
         TRY_LOCK(cs_main, locked);
-        if (!locked || chainActive.Tip() == NULL) return;
+        if (!locked || chainActive.Tip() == nullptr) return;
         nHeight = chainActive.Tip()->nHeight;
     }
 

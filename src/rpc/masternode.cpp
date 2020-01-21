@@ -42,7 +42,7 @@ void SendMoney(const CTxDestination& address, CAmount nValue, CWalletTx& wtxNew,
     // Create and send the transaction
     CReserveKey reservekey(pwalletMain);
     CAmount nFeeRequired;
-    if (!pwalletMain->CreateTransaction(scriptPubKey, nValue, wtxNew, reservekey, nFeeRequired, strError, NULL, coin_type)) {
+    if (!pwalletMain->CreateTransaction(scriptPubKey, nValue, wtxNew, reservekey, nFeeRequired, strError, nullptr, coin_type)) {
         if (nValue + nFeeRequired > pwalletMain->GetBalance())
             strError = strprintf("Error: This transaction requires a transaction fee of at least %s because of its amount, complexity, or use of recently received funds!", FormatMoney(nFeeRequired));
         LogPrintf("SendMoney() : %s\n", strError);
@@ -234,7 +234,7 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
         nHeight = pindex->nHeight;
     }
     std::vector<pair<int, CMasternode> > vMasternodeRanks = mnodeman.GetMasternodeRanks(nHeight);
-    BOOST_FOREACH (PAIRTYPE(int, CMasternode) & s, vMasternodeRanks) {
+    for (PAIRTYPE(int, CMasternode) & s : vMasternodeRanks) {
         UniValue obj(UniValue::VOBJ);
         std::string strVin = s.second.vin.prevout.ToStringShort();
         std::string strTxHash = s.second.vin.prevout.hash.ToString();
@@ -242,7 +242,7 @@ UniValue listmasternodes(const UniValue& params, bool fHelp)
 
         CMasternode* mn = mnodeman.Find(s.second.vin);
 
-        if (mn != NULL) {
+        if (mn != nullptr) {
             if (strFilter != "" && strTxHash.find(strFilter) == string::npos &&
                 mn->Status().find(strFilter) == string::npos &&
                 CBitcoinAddress(mn->pubKeyCollateralAddress.GetID()).ToString().find(strFilter) == string::npos) continue;
@@ -289,7 +289,7 @@ UniValue masternodeconnect(const UniValue& params, bool fHelp)
 
     CService addr = CService(strAddress);
 
-    CNode* pnode = ConnectNode((CAddress)addr, NULL);
+    CNode* pnode = ConnectNode((CAddress)addr, nullptr);
     if (pnode) {
         pnode->Release();
         return NullUniValue;
@@ -473,7 +473,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
 
         UniValue resultsObj(UniValue::VARR);
 
-        BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+        for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
             std::string errorMessage;
             int nIndex;
             if(!mne.castOutputIndex(nIndex))
@@ -481,7 +481,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
             CTxIn vin = CTxIn(uint256(mne.getTxHash()), uint32_t(nIndex));
             CMasternode* pmn = mnodeman.Find(vin);
 
-            if (pmn != NULL) {
+            if (pmn != nullptr) {
                 if (strCommand == "missing") continue;
                 if (strCommand == "disabled" && pmn->IsEnabled()) continue;
             }
@@ -526,7 +526,7 @@ UniValue startmasternode (const UniValue& params, bool fHelp)
         UniValue statusObj(UniValue::VOBJ);
         statusObj.push_back(Pair("alias", alias));
 
-        BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+        for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
             if (mne.getAlias() == alias) {
                 found = true;
                 std::string errorMessage;
@@ -607,7 +607,7 @@ UniValue getmasternodeoutputs (const UniValue& params, bool fHelp)
     vector<COutput> possibleCoins = activeMasternode.SelectCoinsMasternode();
 
     UniValue ret(UniValue::VARR);
-    BOOST_FOREACH (COutput& out, possibleCoins) {
+    for (COutput& out : possibleCoins) {
         UniValue obj(UniValue::VOBJ);
         obj.push_back(Pair("txhash", out.tx->GetHash().ToString()));
         obj.push_back(Pair("outputidx", out.i));
@@ -652,7 +652,7 @@ UniValue listmasternodeconf (const UniValue& params, bool fHelp)
 
     UniValue ret(UniValue::VARR);
 
-    BOOST_FOREACH (CMasternodeConfig::CMasternodeEntry mne, masternodeConfig.getEntries()) {
+    for (CMasternodeConfig::CMasternodeEntry mne : masternodeConfig.getEntries()) {
         int nIndex;
         if(!mne.castOutputIndex(nIndex))
             continue;
@@ -787,7 +787,7 @@ UniValue getmasternodewinners (const UniValue& params, bool fHelp)
             UniValue winner(UniValue::VARR);
             boost::char_separator<char> sep(",");
             boost::tokenizer< boost::char_separator<char> > tokens(strPayment, sep);
-            BOOST_FOREACH (const string& t, tokens) {
+            for (const string& t : tokens) {
                 UniValue addr(UniValue::VOBJ);
                 std::size_t pos = t.find(":");
                 std::string strAddress = t.substr(0,pos);
@@ -850,8 +850,8 @@ UniValue getmasternodescores (const UniValue& params, bool fHelp)
     std::vector<CMasternode> vMasternodes = mnodeman.GetFullMasternodeVector();
     for (int nHeight = chainActive.Tip()->nHeight - nLast; nHeight < chainActive.Tip()->nHeight + 20; nHeight++) {
         uint256 nHigh = 0;
-        CMasternode* pBestMasternode = NULL;
-        BOOST_FOREACH (CMasternode& mn, vMasternodes) {
+        CMasternode* pBestMasternode = nullptr;
+        for (CMasternode& mn : vMasternodes) {
             uint256 n = mn.CalculateScore(1, nHeight - 100);
             if (n > nHigh) {
                 nHigh = n;
