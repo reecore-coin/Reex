@@ -26,14 +26,14 @@ unsigned int getIntervalVersion(bool fTestNet)
 {
     if (fTestNet)
         return MODIFIER_INTERVAL_TESTNET;
+    else
     else {
-		if (chainActive.Height() > LIMIT_POS_FORK_HEIGHT)
+        if (chainActive.Height() > LIMIT_POS_FORK_HEIGHT)
             return nStakeMinAge / 60;
-        else
-			return MODIFIER_INTERVAL;
-	}
+        return MODIFIER_INTERVAL;
 }
 
+ }
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     boost::assign::map_list_of(0, 0xfd11f4e7u);
