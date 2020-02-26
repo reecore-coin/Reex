@@ -1405,7 +1405,7 @@ bool CWallet::SelectStakeCoins(std::set<std::pair<const CWalletTx*, unsigned int
         if (nAmountSelected + out.tx->vout[out.i].nValue > nTargetAmount)
             continue;
 		
-		//check for minimal stake input after fork
+	//check for minimal stake input after fork
         if (chainActive.Height() > LIMIT_POS_FORK_HEIGHT) {
             if (out.tx->vout[out.i].nValue < Params().StakeInputMinimal())
                 continue;
