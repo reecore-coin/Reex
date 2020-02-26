@@ -81,6 +81,7 @@ public:
     CAmount MaxMoneyOut() const { return nMaxMoneyOut; }
     /** The masternode count that we will allow the see-saw reward payments to be off by */
     int MasternodeCountDrift() const { return nMasternodeCountDrift; }
+	CAmount StakeInputMinimal() const { return nStakeInputMinimal; }
     /** Make miner stop after a block is found. In RPC, don't return until nGenProcLimit blocks are generated */
     bool MineBlocksOnDemand() const { return fMineBlocksOnDemand; }
     /** In the future use NetworkIDString() for RPC fields */
@@ -138,6 +139,7 @@ protected:
     int nPoolMaxTransactions;
     std::string strSporkKey;
     std::string strMasternodePoolDummyAddress;
+	CAmount nStakeInputMinimal;
     int64_t nStartMasternodePayments;
     int64_t nBudget_Fee_Confirmations;
     std::string strTreasuryAddress;
