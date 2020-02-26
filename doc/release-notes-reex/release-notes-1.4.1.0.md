@@ -1,4 +1,4 @@
-v1.4.1.0 Minor Release
+# v1.4.1.0 Minor Release
 
 [CODE]: some rpc added:
 - rpcnotifyblockchange
@@ -16,12 +16,19 @@ v1.4.1.0 Minor Release
 	* hex
 	
 [CODE]: NULL to nullptr
+
 [CODE]: BOOST_FOREACH  to for
+
 [CODE]: Leave support of Qt < 4
+
 [CODE]: Refactor all RPC timer
+
 [CODE]: Fix error of time handler
+
 [CODE]: Fix error of pindexNew->pprev == chainActive.Tip
-[CODE]: Set min osx min ios to 10.10
+
+[CODE]: Set min MacOS to 10.10
+
 [DEPS] : Deps updated to:
 - Boost 1.64.0
 - DBus 1.10.18
