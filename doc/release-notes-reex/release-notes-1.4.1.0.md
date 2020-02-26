@@ -13,7 +13,8 @@ v1.4.1.0 Minor Release
 - validateaddress extend with:
  	* scriptPubKey
 	* iswatchonly
-	* hex 
+	* hex
+	
 [CODE]: NULL to nullptr
 [CODE]: BOOST_FOREACH  to for
 [CODE]: Leave support of Qt < 4
