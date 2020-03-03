@@ -21,14 +21,18 @@ bool fTestNet = false; //Params().NetworkID() == CBaseChainParams::TESTNET;
 // Set to 3-hour for production network and 20-minute for test network
 unsigned int nModifierInterval;
 int nStakeTargetSpacing = 60;
+extern unsigned int nStakeMinAge;
 unsigned int getIntervalVersion(bool fTestNet)
 {
     if (fTestNet)
         return MODIFIER_INTERVAL_TESTNET;
-    else
+   else {
+        if (chainActive.Height() > LIMIT_POS_FORK_HEIGHT)
+            return nStakeMinAge / 60;
         return MODIFIER_INTERVAL;
 }
-
+ }
+ 
 // Hard checkpoints of stake modifiers to ensure they are deterministic
 static std::map<int, unsigned int> mapStakeModifierCheckpoints =
     boost::assign::map_list_of(0, 0xfd11f4e7u);

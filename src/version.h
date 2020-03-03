@@ -11,6 +11,7 @@
 /**
  * network protocol versioning
  */
+define LIMIT_POS_FORK_HEIGHT 750000 // to change
 
 //! Current Protocol Version
 static const int PROTOCOL_VERSION = 70930;
