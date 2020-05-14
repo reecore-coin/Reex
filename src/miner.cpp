@@ -118,11 +118,9 @@ CBlockTemplate* CreateNewBlock(const CScript& scriptPubKeyIn, CWallet* pwallet, 
     // -blockversion=N to test forking scenarios
     if (Params().MineBlocksOnDemand())
         pblock->nVersion = GetArg("-blockversion", pblock->nVersion);
-else {
-        pblock->nVersion = 4;
-    }
-    pblock->nVersion = 5; // Support CLTV activation
-
+    else 
+        pblock->nVersion = CBlockHeader::CURRENT_VERSION;;
+       
     // Create coinbase tx
     CMutableTransaction txNew;
     txNew.vin.resize(1);
