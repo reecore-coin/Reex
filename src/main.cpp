@@ -1195,7 +1195,7 @@ bool AcceptToMemoryPool(CTxMemPool& pool, CValidationState& state, const CTransa
             return error("AcceptToMemoryPool: : insane fees %s, %d > %d",
                 hash.ToString(),
                 nFees, ::minRelayTxFee.GetFee(nSize) * 10000);
-		bool fCLTVHasMajority = CBlockIndex::IsSuperMajority(5, chainActive.Tip(), Params().EnforceBlockUpgradeMajority());
+	bool fCLTVHasMajority = CBlockIndex::IsSuperMajority(5, chainActive.Tip(), Params().EnforceBlockUpgradeMajority());
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         int flags = STANDARD_SCRIPT_VERIFY_FLAGS;
@@ -1387,7 +1387,7 @@ bool AcceptableInputs(CTxMemPool& pool, CValidationState& state, const CTransact
             return error("AcceptableInputs: : insane fees %s, %d > %d",
                 hash.ToString(),
                 nFees, ::minRelayTxFee.GetFee(nSize) * 10000);
-		bool fCLTVHasMajority = CBlockIndex::IsSuperMajority(5, chainActive.Tip(), Params().EnforceBlockUpgradeMajority());
+	bool fCLTVHasMajority = CBlockIndex::IsSuperMajority(5, chainActive.Tip(), Params().EnforceBlockUpgradeMajority());
         // Check against previous transactions
         // This is done last to help prevent CPU exhaustion denial-of-service attacks.
         int flags = STANDARD_SCRIPT_VERIFY_FLAGS;
