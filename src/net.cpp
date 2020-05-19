@@ -849,7 +849,7 @@ void CheckOffsetDisconnectedPeers(const CNetAddr& ip)
         // clear the set
         setOffsetDisconnectedPeers.clear();
         // Trigger the warning
-        std::string strMessage = _("Warning: Peers are being disconnected due time differences. Please check that your computer's date and time are correct! If your clock is wrong PIVX Core will not work properly.");
+        std::string strMessage = _("Warning: Peers are being disconnected due time differences. Please check that your computer's date and time are correct! If your clock is wrong REEX Core will not work properly.");
         strMiscWarning = strMessage;
         LogPrintf("*** %s\n", strMessage);
         uiInterface.ThreadSafeMessageBox(strMessage, "", CClientUIInterface::MSG_ERROR);
